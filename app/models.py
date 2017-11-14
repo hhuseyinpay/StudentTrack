@@ -31,19 +31,17 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
 
     username = db.Column(db.String, index=True, unique=True)
     password_hash = db.Column(db.String)
-
     name = db.Column(db.String)
 
     enroll_date = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
 
-
-syllabus = db.Table('syllabus', db.metadata,
-                    db.Column('content_id', db.Integer, db.ForeignKey('contents.id'), primary_key=True),
-                    db.Column('course_id', db.Integer, db.ForeignKey('courses.id'), primary_key=True))
+    syllabus = db.relationship('student_syllabuses', backref='student')
+    daily_study = db.relationship('daily_studies', backref='student')
 
 
 class Content(db.Model):
@@ -55,6 +53,7 @@ class Content(db.Model):
     amount = db.Column(db.Float)
 
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    students = db.relationship('StudentSyllabus', backref='content')
 
 
 class Course(db.Model):
@@ -63,13 +62,40 @@ class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
 
-    contents = db.relationship('Content',
-                               secondary=syllabus, backref='courses')
+    contents = db.relationship('Content', backref='course')
+
+    daily_study = db.relationship('daily_studies', backref='course')
 
 
 class StudentSyllabus(db.Model):
     __tablename__ = 'student_syllabuses'
 
-    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    content_id = db.Column(db.Integer, db.ForeignKey('contents.id'), primary_key=True)
 
     date = db.Column(db.DateTime(), default=datetime.utcnow)
+    status = db.Column(db.Boolean)
+
+
+class DailyStudy(db.Model):
+    __tablename__ = 'daily_studies'
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+
+    amount = db.Column(db.Float)
+    date = db.Column(db.DateTime(), default=datetime.utcnow)
+    status = db.Column(db.Boolean)
+
+
+class Class(db.Model):
+    __tablename__ = 'classes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    manager_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    name = db.Column(db.String)
+    description = db.Column(db.String)
+
+    students = db.relationship('User', backref='class')
