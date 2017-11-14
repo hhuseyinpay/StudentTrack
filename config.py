@@ -25,7 +25,13 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 
 
+class SqlDebug(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data-sqldebug.sqlite')
+
+
 config = {
+    'debug': SqlDebug,
     'development': DevelopmentConfig,
     'testing': TestingConfig,
 
