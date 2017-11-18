@@ -28,7 +28,7 @@ def login():
     if not password:
         return bad_request("Missing password parameter")
 
-    user = ""  # User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first()
 
     if user is None or not user.verify_password(password=password):
         return bad_request("Bad username or password")
