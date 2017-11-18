@@ -1,8 +1,8 @@
 from datetime import datetime
-# from werkzeug.security import generate_password_hash, check_password_hash
-# from itsdangerous import (TimedJSONWebSignatureSerializer
-# as Serializer)
-# from flask import current_app
+from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer)
+from flask import current_app
 from . import db
 from .api.errors import ValidationError
 
@@ -31,7 +31,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=True)
 
     username = db.Column(db.String, index=True, unique=True)
     password_hash = db.Column(db.String)
@@ -40,8 +40,37 @@ class User(db.Model):
     enroll_date = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
 
-    syllabus = db.relationship('student_syllabuses', backref='student')
-    daily_study = db.relationship('daily_studies', backref='student')
+    # daily_study = db.relationship('daily_studies', backref='student')
+
+    def __init__(self, role_id, username, password, class_id=None):
+        self.role_id = role_id
+        self.class_id = class_id
+        self.username = username
+        self.password_hash = generate_password_hash(password)
+
+    def hash_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def generate_auth_token(self, expiration=600):
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+            print("verify auth data: {}".fortmat(data))
+        except:
+            return None  # invalid token
+        return User.query.get(data['id'])
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
 
 
 class Content(db.Model):
@@ -55,6 +84,12 @@ class Content(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     students = db.relationship('StudentSyllabus', backref='content')
 
+    def __init__(self, name, description, amount, course_id):
+        self.name = name
+        self.description = description
+        self.amount = amount
+        self.course_id = course_id
+
 
 class Course(db.Model):
     __tablename__ = 'courses'
@@ -64,7 +99,7 @@ class Course(db.Model):
 
     contents = db.relationship('Content', backref='course')
 
-    daily_study = db.relationship('daily_studies', backref='course')
+    # daily_study = db.relationship('daily_studies', backref='course')
 
 
 class StudentSyllabus(db.Model):
@@ -81,8 +116,8 @@ class DailyStudy(db.Model):
     __tablename__ = 'daily_studies'
 
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
 
     amount = db.Column(db.Float)
     date = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -98,4 +133,4 @@ class Class(db.Model):
     name = db.Column(db.String)
     description = db.Column(db.String)
 
-    students = db.relationship('User', backref='class')
+    students = db.relationship('User', foreign_keys=[User.class_id], backref='class')
