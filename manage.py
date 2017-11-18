@@ -28,5 +28,17 @@ def cr():
     db.create_all()
 
 
+@manager.command
+def fakedata():
+    from app.models import User
+
+    u1 = User(0, 'admin', "admin")
+
+    u = [u1]
+
+    db.session.add_all(u)
+    db.session.commit()
+
+
 if __name__ == '__main__':
     manager.run()
