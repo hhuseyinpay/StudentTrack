@@ -1,7 +1,6 @@
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
-from flask.ext.sqlalchemy import get_debug_queries
+from flask_sqlalchemy import SQLAlchemy, get_debug_queries
 
 from config import config
 
@@ -48,6 +47,15 @@ def create_app(config_name):
             'status': 401,
             'msg': 'The token has expired'
         }), 401
+
+    @jwt.user_claims_loader
+    def add_claims_to_access_token(identity):
+        from .models import User
+        user = User.query.filter_by(id=identity).first()
+        return {
+            'user_id': identity,
+            'role': user.role.name
+        }
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
