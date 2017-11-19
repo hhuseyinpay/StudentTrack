@@ -116,12 +116,15 @@ class DailyStudy(db.Model):
     __tablename__ = 'daily_studies'
 
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
-
     amount = db.Column(db.Float)
     date = db.Column(db.DateTime(), default=datetime.utcnow)
-    status = db.Column(db.Boolean)
+    status = db.Column(db.Boolean, default=False)
+
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    student = db.relationship('User')
+
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    course = db.relationship('Course')
 
 
 class Class(db.Model):
