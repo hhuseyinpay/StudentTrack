@@ -30,13 +30,15 @@ def cr():
 
 @manager.command
 def fakedata():
-    from app.models import User
+    from app.models import User, DailyStudy
 
     u1 = User(0, 'admin', "admin")
-
     u = [u1]
+    c1 = DailyStudy(amount=10, student_id=1, course_id=1)
+    c = [c1]
 
     db.session.add_all(u)
+    db.session.add_all(c)
     db.session.commit()
 
 
