@@ -1,10 +1,9 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_claims
 
-from .errors import bad_request
-from ..models import *
-
 from . import api
+from .errors import bad_request
+from ..models import User
 
 
 @api.route('/login', methods=['POST'])
