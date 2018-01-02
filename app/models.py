@@ -126,6 +126,19 @@ class DailyStudy(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     course = db.relationship('Course')
 
+    @staticmethod
+    def from_json():
+        pass
+
+    def to_json(self):
+        print(str(self.course.name))
+        return {
+            "course_name": str(self.course.name),
+            "amount": self.amount,
+            "date": self.date,
+            "status": self.status
+        }
+
 
 class Class(db.Model):
     __tablename__ = 'classes'
