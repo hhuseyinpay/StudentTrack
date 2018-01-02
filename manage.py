@@ -34,10 +34,11 @@ def fakedata():
 
     u1 = User(0, 'admin', "admin")
     u = [u1]
-    c1 = DailyStudy(amount=10, student_id=1, course_id=1)
+    c1 = DailyStudy(amount=5, student_id=1, course_id=3)
     c = [c1]
-
-    db.session.add_all(u)
+    #for i in range(1,500000):
+    #    c.append(DailyStudy(amount=3, student_id=3, course_id=3))
+    #db.session.add_all(u)
     db.session.add_all(c)
     db.session.commit()
 
