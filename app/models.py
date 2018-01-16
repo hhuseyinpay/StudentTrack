@@ -4,7 +4,6 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer)
 from flask import current_app
 from . import db
-from .api.errors import ValidationError
 
 
 class Role(db.Model):
@@ -17,9 +16,9 @@ class Role(db.Model):
 
     @staticmethod  # default roles ?
     def insert_roles():
-        role1 = Role(name='student')
-        role2 = Role(name='teacher')
-        role3 = Role(name='admin')
+        role1 = Role(name='Student')
+        role2 = Role(name='Teacher')
+        role3 = Role(name='Manager')
 
         db.session.add(role1)
         db.session.add(role2)
@@ -63,7 +62,7 @@ class User(db.Model):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-            print("verify auth data: {}".fortmat(data))
+            print("verify auth data: {}".format(data))
         except:
             return None  # invalid token
         return User.query.get(data['id'])
@@ -127,17 +126,31 @@ class DailyStudy(db.Model):
     course = db.relationship('Course')
 
     @staticmethod
-    def from_json():
-        pass
+    def from_json(sid, json_study):
+        cid = json_study.get('course_id')
+        amount = json_study.get('amount')
+        return DailyStudy(student_id=sid, course_id=cid, amount=amount)
 
     def to_json(self):
-        print(str(self.course.name))
         return {
             "course_name": str(self.course.name),
             "amount": self.amount,
             "date": self.date,
             "status": self.status
         }
+
+
+class DailyStudyCourse(db.Model):
+    __tablename__ = 'daily_study_courses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    course = db.relationship('Course')
+
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role = db.relationship('Role')
+
+    status = db.Column(db.Boolean, default=False)
 
 
 class Class(db.Model):
