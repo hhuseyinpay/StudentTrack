@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy, get_debug_queries
-
 from config import config
 
 db = SQLAlchemy()
@@ -30,6 +30,8 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
+    # app.config['JSON_AS_ASCII'] = False
+    app.config['MAX_CONTENT_LENGTH'] = 1000
     db.init_app(app)
 
     if config_name == 'debug':
