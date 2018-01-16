@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from flask import request, jsonify, json
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt_claims
-from datetime import datetime, timedelta
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from . import api
 from .errors import bad_request, internal_error
 from ..models import StudentSyllabus
