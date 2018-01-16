@@ -43,7 +43,7 @@ class User(db.Model):
 
     def to_json(self):
         return {
-            "id": self.id,
+            "user_id": self.id,
             "role_name": self.role.name,
             "role_id": self.role_id,
             "class_name": self.classs.name,
