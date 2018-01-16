@@ -37,9 +37,22 @@ class User(db.Model):
     name = db.Column(db.String)
 
     enroll_date = db.Column(db.DateTime(), default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)  # duyuruya ping koy!
 
     # daily_study = db.relationship('daily_studies', backref='student')
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "role_name": self.role.name,
+            "role_id": self.role_id,
+            "class_name": self.classs.name,
+            "class_id": self.class_id,
+            "username": self.username,
+            "name": self.name,
+            "enroll_date": self.enroll_date,
+            "last_seen": self.last_seen
+        }
 
     def __init__(self, role_id, username, password, class_id=None):
         self.role_id = role_id
@@ -177,4 +190,4 @@ class Class(db.Model):
     name = db.Column(db.String)
     description = db.Column(db.String)
 
-    students = db.relationship('User', foreign_keys=[User.class_id], backref='class')
+    students = db.relationship('User', foreign_keys=[User.class_id], backref='classs')
