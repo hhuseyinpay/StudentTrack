@@ -110,6 +110,20 @@ class StudentSyllabus(db.Model):
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     status = db.Column(db.Boolean)
 
+    def to_json(self):
+        return {
+            "course_name": self.content.course.name,
+            "content_name": self.content.name,
+            "content_description": self.content.description,
+            "content_amount": self.content.amount,
+            "date": self.date,
+            "status": self.status
+        }
+
+    @staticmethod
+    def from_json(student_id, content_id):
+        return StudentSyllabus(student_id=student_id, content_id=content_id)
+
 
 class DailyStudy(db.Model):
     __tablename__ = 'daily_studies'
@@ -133,6 +147,7 @@ class DailyStudy(db.Model):
 
     def to_json(self):
         return {
+            "course_id": self.course_id,
             "course_name": str(self.course.name),
             "amount": self.amount,
             "date": self.date,

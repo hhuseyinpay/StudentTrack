@@ -31,8 +31,8 @@ def dgetbydat(day):
             extract('year', DailyStudy.date) == date[2]).all()
 
         print(studies)
-    except Exception:
-        print(Exception)
+    except Exception as e:
+        print(e)
         return bad_request("incorrect day parameter")
     return jsonify([study.to_json() for study in studies]), 200
 
@@ -47,8 +47,8 @@ def dgetbyinterval(startdate, enddate):
 
         studies = DailyStudy.query.filter_by(student_id=user_id).filter(DailyStudy.date > startdate,
                                                                         DailyStudy.date < enddate).all()
-    except Exception:
-        print(Exception)
+    except Exception as e:
+        print(e)
         return bad_request("incorrect day parameter")
     return jsonify([study.to_json() for study in studies]), 200
 
@@ -74,8 +74,8 @@ def dailystudypost():
     try:
         db.session.add_all(course)
         db.session.commit()
-    except Exception:
-        print(Exception)
+    except Exception as e:
+        print(e)
         return internal_error("db problem")
     return jsonify("OK"), 200
 
@@ -88,4 +88,4 @@ def dailystudyget():
 
     courses = DailyStudyCourse.query.filter_by(role_id=role_id).all()
 
-    return jsonify([course.course.name for course in courses]), 200
+    return jsonify([{"course_name": course.course.name, "course_id": course.course.id} for course in courses]), 200
