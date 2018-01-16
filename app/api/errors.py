@@ -3,6 +3,12 @@ from flask import jsonify
 from . import api
 
 
+def internal_error(message):
+    response = jsonify({'error': 'internal', 'msg': message})
+    response.status_code = 500
+    return response
+
+
 def bad_request(message):
     response = jsonify({'error': 'bad request', 'msg': message})
     response.status_code = 400
