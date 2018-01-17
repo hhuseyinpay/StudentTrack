@@ -16,9 +16,9 @@ class Role(db.Model):
 
     @staticmethod  # default roles ?
     def insert_roles():
-        role1 = Role(name='Student')
+        role1 = Role(name='Manager')
         role2 = Role(name='Teacher')
-        role3 = Role(name='Manager')
+        role3 = Role(name='Student')
 
         db.session.add(role1)
         db.session.add(role2)
@@ -125,6 +125,8 @@ class StudentSyllabus(db.Model):
 
     def to_json(self):
         return {
+            "student_id": self.student_id,
+            "content_id": self.content_id,
             "course_name": self.content.course.name,
             "content_name": self.content.name,
             "content_description": self.content.description,
@@ -160,6 +162,7 @@ class DailyStudy(db.Model):
 
     def to_json(self):
         return {
+            "dailystudy_id": self.id,
             "course_id": self.course_id,
             "course_name": str(self.course.name),
             "amount": self.amount,
@@ -179,6 +182,12 @@ class DailyStudyCourse(db.Model):
     role = db.relationship('Role')
 
     status = db.Column(db.Boolean, default=False)
+
+    def to_json(self):
+        return {
+            "course_name": self.course.name,
+            "course_id": self.course.id
+        }
 
 
 class Class(db.Model):
