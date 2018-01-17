@@ -56,7 +56,7 @@ def create_app(config_name):
         user = User.query.filter_by(id=identity).first()
         return {
             'user_id': identity,
-            'role': user.role.name
+            'role_id': user.role.id
         }
 
     from .main import main as main_blueprint
