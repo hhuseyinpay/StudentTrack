@@ -114,14 +114,26 @@ def dailystudyput(student_id):
 
     update = []
     req = request.json.get('update')
+    check = False
     for r in req:
         study = DailyStudy.query.filter_by(id=r.get("dailystudy_id")).filter_by(student_id=student_id).first()
         if study is None:
             return bad_request("invalied dailystudy_id")
 
-        study.status = r.get('status')
-        study.amount = r.get('amount')
-        update.append(study)
+        check = False
+
+        status = r.get('status')
+        if status is not None:
+            study.status = status
+            check = True
+
+        amount = r.get('amount')
+        if amount is not None:
+            study.amount = amount
+            check = True
+
+        if check:
+            update.append(study)
 
     try:
         db.session.add_all(update)
