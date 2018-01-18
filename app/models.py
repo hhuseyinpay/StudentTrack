@@ -28,7 +28,7 @@ class Role(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, index=True, primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=True)
 
@@ -41,22 +41,48 @@ class User(db.Model):
 
     # daily_study = db.relationship('daily_studies', backref='student')
 
-    def to_json(self):
-        return {
-            "user_id": self.id,
-            "role_name": self.role.name,
-            "role_id": self.role_id,
-            "class_name": self.classs.name,
-            "class_id": self.class_id,
-            "username": self.username,
-            "name": self.name,
-            "enroll_date": self.enroll_date,
-            "last_seen": self.last_seen
-        }
+    @staticmethod
+    def from_json(json_user):
+        username = json_user.get('username')
+        password = json_user.get('password')
+        name = json_user.get('name')
+        role_id = json_user.get('role_id')
+        class_id = json_user.get('class_id')
 
-    def __init__(self, role_id, username, password, class_id=None):
+        if username is None or password is None or name is None or role_id is None or class_id is None:
+            return None
+        return User(role_id, name, username, password, class_id)
+
+    def to_json(self):
+        if self.class_id is None or self.class_id == 0:
+            return {
+                "user_id": self.id,
+                "role_name": self.role.name,
+                "role_id": self.role_id,
+                "class_name": "",
+                "class_id": 0,
+                "username": self.username,
+                "name": self.name,
+                "enroll_date": self.enroll_date,
+                "last_seen": self.last_seen
+            }
+        else:
+            return {
+                "user_id": self.id,
+                "role_name": self.role.name,
+                "role_id": self.role_id,
+                "class_name": self.classs.name,
+                "class_id": self.class_id,
+                "username": self.username,
+                "name": self.name,
+                "enroll_date": self.enroll_date,
+                "last_seen": self.last_seen
+            }
+
+    def __init__(self, role_id, name, username, password, class_id=None):
         self.role_id = role_id
         self.class_id = class_id
+        self.name = name
         self.username = username
         self.password_hash = generate_password_hash(password)
 
@@ -200,3 +226,11 @@ class Class(db.Model):
     description = db.Column(db.String)
 
     students = db.relationship('User', foreign_keys=[User.class_id], backref='classs')
+
+    def to_json(self):
+        return {
+            "class_id": self.id,
+            "manager_id": self.manager_id,
+            "name": self.name,
+            "description": self.description
+        }
